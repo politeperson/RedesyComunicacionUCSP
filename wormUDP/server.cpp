@@ -1,7 +1,7 @@
 // Server side implementation of UDP client-server model
 #include "wormServer.h"
 
-#define PORT 50005
+#define PORT 55555
 #define MAXLINE 1024
 
 int sockfd;
@@ -180,7 +180,7 @@ int receiveMsg(string msg, string ipaddr, int port)
             {
 
                 // if you hit the head of a worm you will get 50 points
-                PlayersScores[nick_user] += 50;
+                PlayersScores[nick_user] += 10;
                 if (PlayersScores[nick_user] >= 200) // si el usuario llego a los 200 o más puntos, entonces el ganó el juego
                 {
                     finish_game = 1; //finalizamos el juego
