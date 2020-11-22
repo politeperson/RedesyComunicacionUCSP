@@ -14,11 +14,11 @@ private:
     static int IdCounter;
     int IdLength, MessageLength, HashKey;
     string content;
-    int Id, hash;
+    int Id, hashMessage;
     char Type;
 
 public:
-    Message()
+    explicit Message()
     {
         HashKey = 666;
         IdLength = 5;
@@ -59,7 +59,7 @@ public:
     // obtnenemos el hash
     int getHash()
     {
-        return hash;
+        return hashMessage;
     }
     // la función retorna el contenido de mi variable Id
     void setId(int _Id)
@@ -70,6 +70,10 @@ public:
     void setType(char _Type)
     {
         Type = _Type;
+    }
+    void setHash(int _hashMessage)
+    {
+        hashMessage = _hashMessage;
     }
 
     // estas funciones me serán de ayuda para la codificación y decodificación
@@ -106,7 +110,7 @@ public:
     int hash(string message)
     {
         int sum = 0;
-        for (int i = 0; i < message.size(); sum += ((int)message[i++]) % HashKey)
+        for (int i = 0; i < message.size(); sum = (sum + (int)message[i++]) % HashKey)
             ;
         return sum;
     }
@@ -116,7 +120,7 @@ public:
     string decode(string message)
     {
         // primero extraemos el tipo de mensaje que es
-        Type = message[0];
+        setType(message[0]);
 
         // segundo extraemos el identificador del mensaje
         setId(stri(message.substr(1, IdLength)));
@@ -126,6 +130,9 @@ public:
 
         // cuarto extraemos el mensaje y retornamos el resultado
         setContent(message.substr(1 + IdLength + MessageLength, data_size));
+
+        // al final le ponemos el hash
+        setHash(stri(message.substr(1 + IdLength + MessageLength + data_size, 3)));
         return content;
     }
 
@@ -138,8 +145,8 @@ public:
         setContent(message);
         // también asignamos el tipo de mensaje a codificar y lo asignamos
         setType(TypeMessage);
-        // también asignamos el identificador a nuestro mensaje
-        setId(IdMessage);
+        // asignamos un hash respectivo
+        setHash(hash(message));
 
         string EncodedMessage = "";
         // primero se agrega el tipo de mensaje
@@ -149,7 +156,16 @@ public:
         // MessageID (5B) por defecto
         // si no hemos especificado un id, generamos uno y lo agregamos al mensaje
         // sino le agregamos el id especificado para el mensaje
-        EncodedMessage += (IdMessage == -1) ? istr_n(IdLength, IdCounter) : istr_n(IdLength, IdMessage);
+        if (IdMessage == -1)
+        {
+            setId(IdCounter);
+            EncodedMessage += istr_n(IdLength, IdCounter);
+        }
+        else
+        {
+            setId(IdMessage);
+            EncodedMessage += istr_n(IdLength, IdMessage);
+        }
         increase_id_counter(); // incrementamos el contador de identificadores, para otro id
 
         // tercero se agrega el tamaño del mensaje
